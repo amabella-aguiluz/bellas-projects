@@ -60,16 +60,14 @@ def bounce_wall(horse):
     next_y = int(horse.y + horse.velocity_y)
 
     if maze_mask.get_at((next_x, next_y)):  
-        horse.velocity_x *= random.uniform(0.9, 1.1)  # random adjustment to x
-        horse.velocity_y *= random.uniform(0.9, 1.1)  # random adjustment to y velocity
+        horse.velocity_x *= random.uniform(0.85, 1.15)  # random adjustment to x
+        horse.velocity_y *= random.uniform(0.85, 1.15)  # random adjustment to y velocity
 
         # reverse velocity
         if maze_mask.get_at((int(horse.x), next_y)):  # hits left or right
             horse.velocity_x *= -1 
         if maze_mask.get_at((next_x, int(horse.y))):  #hits top or bottom
             horse.velocity_y *= -1  
-
-    # Apply when bounced function (modifies the horse's velocity slightly)
     when_bounced(horse)
 
 
