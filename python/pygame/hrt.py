@@ -6,18 +6,28 @@ import random
 
 screen = pygame.display.set_mode((800, 600)) # set screen size (width, height)
 clock = pygame.time.Clock() # set fps
-velocity = 1.1 # speed of horse
+velocity = 1 # speed of horse
 running = True # keep game loop running
-    #-- mask
+    #-- maze
 maze_image = pygame.image.load("assets/map_test.png").convert()  # convert for faster pixel access
 maze_mask = pygame.mask.from_threshold(maze_image, (0, 0, 0), (10, 10, 10)) #convert maze png to mask
-    #-- mask
+    #-- maze
     #-- velocity
 v_temp1 = random.choice([-1, 1]) * velocity
 v_temp2 = random.choice([-1, 1]) * velocity
     #-- velocity
 
     ######## initializing game ########
+class Goal:
+
+    def __init__(self, x, y, image_path):
+        self.x = x # x position of goal
+        self.y = y # x position of goal
+        self.image = pygame.image.load(image_path).convert_alpha() # load goal image
+        self.g_mask = pygame.mask.from_surface(self.image)
+        self.rect = self.image.get_rect(center = (x, y))
+    def draw(self, surface):
+        surface.blit(self.image, self.rect)
 
 
     # initialize horse object
@@ -30,6 +40,7 @@ class Horse:
         self.velocity_y = v_temp2 # velocity direction y
         self.image = pygame.image.load(image_path).convert_alpha() #load image
         self.rect = self.image.get_rect(center =(x, y))
+        self.h_mask = pygame.mask.from_surface(self.image)
 
     def draw(self, surface): # display self
         surface.blit(self.image, self.rect)
@@ -47,40 +58,47 @@ def horse_bounce(horse):
         horse.velocity_y *= -1
     when_bounced(horse)
 
-def move_horse(horse):
+def move_horse(horse, goal):
     #horse_bounce(horse)
-    bounce_wall(horse)
+    bounce_wall(horse, goal)
     horse.x += horse.velocity_x
     horse.y += horse.velocity_y
     horse.rect.center = (horse.x, horse.y)
 
 # bounce against walls
-def bounce_wall(horse):
+def bounce_wall(horse, goal):
     next_x = int(horse.x + horse.velocity_x)
     next_y = int(horse.y + horse.velocity_y)
+    goal_x = int(goal.x - goal.rect.left)
+    goal_y = int(goal.y - goal.rect.top)
+    overlap = horse.h_mask.overlap(goal.g_mask, (goal_x, goal_y))
 
     if maze_mask.get_at((next_x, next_y)):  
         horse.velocity_x *= random.uniform(0.85, 1.15)  # random adjustment to x
-        horse.velocity_y *= random.uniform(0.85, 1.15)  # random adjustment to y velocity
+        horse.velocity_y *= random.uniform(0.85, 1.15)  # random adjustment to y
 
         # reverse velocity
         if maze_mask.get_at((int(horse.x), next_y)):  # hits left or right
             horse.velocity_x *= -1 
         if maze_mask.get_at((next_x, int(horse.y))):  #hits top or bottom
             horse.velocity_y *= -1  
-    when_bounced(horse)
 
+    if overlap == True:
+        print("Win!")
+        
 
     ######## create horses  ########
 horse1 = Horse("Horse 1", 100, 100, "assets/horse_1.png", v_temp1, v_temp2) # <-- place horse
     ######## create horses  ########
 
+#create goal#
+goal1 = Goal(100, 100, "assets/goal.png")
+#create goal#
 
     ######## gui open ########
 while running: 
     clock.tick(60) # <-- set fps 60
-
-    move_horse(horse1)
+    move_horse(horse1, goal1)
 
 # for loop through the event queue 
     for event in pygame.event.get():     
@@ -89,6 +107,7 @@ while running:
 
     screen.blit(maze_image, (0, 0))  # <-- draw maze map
     horse1.draw(screen)  # <-- draw horses here (if any)
+    goal1.draw(screen) # <- draw goal
 
     pygame.display.flip()  # <-- refresh screen
     ######## gui open ########
