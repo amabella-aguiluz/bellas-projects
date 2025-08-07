@@ -118,9 +118,6 @@ class Horse:
 
     def check_maze_collision(self, maze_rect, maze_mask):
         offset = (int(self.rect.left - maze_rect.left), int(self.rect.top - maze_rect.top))
-        # offset_x = int(self.rect.left - maze_rect.left)
-        # offset_y = int(self.rect.top - maze_rect.top)
-        # offset = (offset_x, offset_y)
         return self.h_mask.overlap(maze_mask, offset)
 
     
@@ -148,7 +145,31 @@ class Horse:
             if not self.check_maze_collision(maze_rect, maze_mask):
                 break  # Exit loop if out of wall
 
+    def check_other_collision(self, other):
+        offset = (int(self.rect.left - other.rect.left), int(self.rect.top - other.rect.top))
+        return self.h_mask.overlap(other.h_mask, offset)
 
+    def bounce_off_other(self, other):
+        # Randomize bounce direction (±60°)
+        angle = math.atan2(self.velocity_y, self.velocity_x)
+        deviation = random.uniform(-math.pi / 3, math.pi / 3)  # ±60 degrees
+        new_angle = angle + math.pi + deviation  # Reflect + randomize
+
+        # Keep the original speed
+        speed = math.hypot(self.velocity_x, self.velocity_y)
+        self.velocity_x = math.cos(new_angle) * speed
+        self.velocity_y = math.sin(new_angle) * speed
+
+        # Try to move slightly away from the wall
+        for _ in range(10):
+            self.x += self.velocity_x
+            self.y += self.velocity_y
+            self.x = max(0, min(self.x, SCREEN_WIDTH))
+            self.y = max(0, min(self.y, SCREEN_HEIGHT))
+            self.rect.center = (self.x, self.y)
+
+            if not self.check_other_collision(other):
+                break  # Exit loop if out of wall
 
  
     # initialize horse object
@@ -201,6 +222,11 @@ while running:
         horse.move(maze_rect, maze_mask)
         goal_reach(horse, goal1)
 
+    for i, horse in enumerate(horses):
+        for other in horses[i + 1:]:  # Avoid duplicate checks
+            if horse.rect.colliderect(other.rect):
+                horse.bounce_off_other(other)
+                other.bounce_off_other(horse)  # Optional: bounce both ways
 
 
     screen.blit(maze_image, (0, 0))  # <-- draw maze map
