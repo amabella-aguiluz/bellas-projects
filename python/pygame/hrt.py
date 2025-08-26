@@ -16,6 +16,7 @@ velocity = 1.5  # speed of horse
 running = True  # keep game loop running
 
 title_img = pygame.image.load("assets/title.png").convert_alpha()
+congratulation_img = pygame.image.load("assets/congratulation.png").convert_alpha()
 
 # -- maze
 maze_image = pygame.image.load("assets/map_test.png").convert_alpha()
@@ -133,21 +134,17 @@ class Horse:
         return self.h_mask.overlap(other.h_mask, offset)
 
     def bounce_off_other(self, other):
-        angle = math.atan2(self.velocity_y, self.velocity_x)
-        deviation = random.uniform(-math.pi / 3, math.pi / 3)
-        new_angle = angle + math.pi + deviation
-        speed = math.hypot(self.velocity_x, self.velocity_y)
-        self.velocity_x = math.cos(new_angle) * speed
-        self.velocity_y = math.sin(new_angle) * speed
+        if self.rect.colliderect(other.rect):
+        # Swap velocities
+            self.velocity_x, other.velocity_x = other.velocity_x, self.velocity_x
+            self.velocity_y, other.velocity_y = other.velocity_y, self.velocity_y
 
-        for _ in range(10):
-            self.x += self.velocity_x
-            self.y += self.velocity_y
-            self.x = max(0, min(self.x, SCREEN_WIDTH))
-            self.y = max(0, min(self.y, SCREEN_HEIGHT))
-            self.rect.center = (self.x, self.y)
-            if not self.check_other_collision(other):
-                break
+        # Nudge apart so they don't overlap
+        while self.rect.colliderect(other.rect):
+            self.rect.x += self.velocity_x
+            self.rect.y += self.velocity_y
+            other.rect.x += other.velocity_x
+            other.rect.y += other.velocity_y
 
 def goal_reach(horse, goal):
     # Calculate offset between horse and goal
@@ -161,13 +158,6 @@ def goal_reach(horse, goal):
         return True
     
     return False
-
-
-# -- create horses
-horses = [
-    Horse("Horse 1", 100, 100, "assets/horse_1.png", v_temp1, v_temp2),
-    Horse("Horse 2", 130, 130, "assets/horse_2.png", v_temp1, v_temp2),
-]
 
 # -- colors
 black = (0, 0, 0)
@@ -227,11 +217,6 @@ startg = UIElement((400, 350), "Start Game", 50, black, action=GameState.NEWGAME
 quitg = UIElement((400, 400), "Quit Game", 50, black, action=GameState.QUIT)
 exitg = UIElement((400, 400), "Exit Game", 50, black, action=GameState.QUIT)
 
-# -- goal
-goal1 = Goal(300, 150, "assets/goal.png")
-
-
-
 
 # -- title screen
 def title(mouse_up):
@@ -250,12 +235,28 @@ def title(mouse_up):
 
 
 def game():
+    # -- create horses
+    horses = [
+    Horse("Horse 1", 100, 100, "assets/horse_1.png", v_temp1, v_temp2),
+    Horse("Horse 2", 130, 130, "assets/horse_2.png", v_temp1, v_temp2),
+    ]
+
+    # -- goal
+    goal1 = Goal(700, 150, "assets/goal.png")
     while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return GameState.QUIT
+
+
         for horse in horses:
             horse.move(maze_rect, maze_mask)
-            goal_reach(horse, goal1)
+            if(goal_reach(horse, goal1)):
+                return game_over()
 
-
+        for i, horse in enumerate(horses):
+            for j in range(i + 1, len(horses)):
+                horse.bounce_off_other(horses[j])
 
         screen.blit(maze_image, (0, 0))  # <-- draw maze map
         for horse in horses:
@@ -267,6 +268,34 @@ def game():
         pygame.draw.rect(screen, (0, 255, 0), maze_rect, 1)  # green box around maze
         pygame.display.flip()
         clock.tick(60)
+
+
+# if goal was achieved
+def game_over():
+    while running:
+        mouse_up = False
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return GameState.QUIT
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                mouse_up = True
+
+        screen.blit(congratulation_img, (0, 0))
+
+        ui_action = startg.update(pygame.mouse.get_pos(), mouse_up)
+        startg.draw(screen)
+
+        if ui_action is None:
+            ui_action = quitg.update(pygame.mouse.get_pos(), mouse_up)
+        quitg.draw(screen)
+
+        pygame.display.flip()
+
+        if ui_action == GameState.NEWGAME:
+            return GameState.NEWGAME
+        elif ui_action == GameState.QUIT:
+            return GameState.QUIT
+
 
 def menu_loop():
     while True:
@@ -292,7 +321,14 @@ def menu_loop():
 while running:
     state = menu_loop()
     if state == GameState.NEWGAME:
-        game()
+        # loop until player quits
+        while True:
+            state = game()
+            if state == GameState.NEWGAME:
+                continue   # restart game immediately
+            elif state == GameState.QUIT:
+                running = False
+                break
     elif state == GameState.QUIT:
         running = False
     clock.tick(60)
