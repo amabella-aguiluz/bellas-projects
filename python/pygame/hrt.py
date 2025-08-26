@@ -149,6 +149,19 @@ class Horse:
             if not self.check_other_collision(other):
                 break
 
+def goal_reach(horse, goal):
+    # Calculate offset between horse and goal
+    offset = (int(horse.rect.left - goal.rect.left), int(horse.rect.top - goal.rect.top))
+    
+    # Check if horse's mask overlaps with goal's mask
+    collision = horse.h_mask.overlap(goal.g_mask, offset)
+    
+    if collision:
+        print(f"{horse.name} reached the goal!")
+        return True
+    
+    return False
+
 
 # -- create horses
 horses = [
@@ -218,34 +231,75 @@ exitg = UIElement((400, 400), "Exit Game", 50, black, action=GameState.QUIT)
 goal1 = Goal(300, 150, "assets/goal.png")
 
 
+
+
 # -- title screen
 def title(mouse_up):
     screen.blit(title_img, (0, 0))
 
-    startg.update(pygame.mouse.get_pos(), mouse_up)
+    ui_action = startg.update(pygame.mouse.get_pos(), mouse_up)
     startg.draw(screen)
 
-    quitg.update(pygame.mouse.get_pos(), mouse_up)
+    if ui_action is None:
+        ui_action = quitg.update(pygame.mouse.get_pos(), mouse_up)
     quitg.draw(screen)
 
     pygame.display.flip()
 
+    return ui_action
+
+
+def game():
+    while running:
+        for horse in horses:
+            horse.move(maze_rect, maze_mask)
+            goal_reach(horse, goal1)
+
+
+
+        screen.blit(maze_image, (0, 0))  # <-- draw maze map
+        for horse in horses:
+            horse.draw(screen)
+            pygame.draw.rect(screen, (255, 0, 0), horse.rect, 1)  # red box around horse
+            goal1.draw(screen) # <- draw goal
+
+
+        pygame.draw.rect(screen, (0, 255, 0), maze_rect, 1)  # green box around maze
+        pygame.display.flip()
+        clock.tick(60)
+
+def menu_loop():
+    while True:
+        mouse_up = False
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return GameState.QUIT
+            if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                mouse_up = True
+
+        ui_action = title(mouse_up)
+
+            # If Start Game clicked
+        if ui_action == GameState.NEWGAME:
+            return GameState.NEWGAME
+
+            # If Quit clicked
+        if ui_action == GameState.QUIT:
+            return GameState.QUIT
 
 # -- main loop
 while running:
+    state = menu_loop()
+    if state == GameState.NEWGAME:
+        game()
+    elif state == GameState.QUIT:
+        running = False
     clock.tick(60)
     mouse_up = False
-
     for event in pygame.event.get():
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             mouse_up = True
-
-    ui_action = quitg.update(pygame.mouse.get_pos(), mouse_up)
-    if ui_action is not None:
-        break
-
-    quitg.draw(screen)
-    title(mouse_up)
 
     pygame.draw.rect(screen, (0, 255, 0), maze_rect, 1)
     pygame.display.flip()
