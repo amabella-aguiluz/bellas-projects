@@ -59,13 +59,14 @@ class Goal:
 
 # -- horse
 class Horse:
-    def __init__(self, name, x, y, image_path, velocity_x, velocity_y):
+    def __init__(self, name, x, y, image_path, velocity_x, velocity_y, victory_path):
         self.name = name
         self.x = x
         self.y = y
         self.velocity_x = velocity_x
         self.velocity_y = velocity_y
         self.image = pygame.image.load(image_path).convert_alpha()
+        self.victory_img = pygame.image.load(victory_path).convert_alpha()
         self.rect = self.image.get_rect(center=(x, y))
         self.h_mask = pygame.mask.from_surface(self.image)
 
@@ -249,8 +250,8 @@ def pause_game():
 def game():
     # -- create horses
     horses = [
-    Horse("Horse 1", 100, 100, "assets/horse_1.png", v_temp1, v_temp2),
-    Horse("Horse 2", 130, 130, "assets/horse_2.png", v_temp1, v_temp2),
+    Horse("Horse 1", 100, 100, "assets/horse_1.png", v_temp1, v_temp2, "assets/angela_win.png"),
+    Horse("Horse 2", 130, 130, "assets/horse_2.png", v_temp1, v_temp2, "assets/carmen_win.png"),
     ]
 
     # -- goal
@@ -271,7 +272,7 @@ def game():
         for horse in horses:
             horse.move(maze_rect, maze_mask)
             if(goal_reach(horse, goal1)):
-                return game_over()
+                return game_over(horse)
 
         for i, horse in enumerate(horses):
             for j in range(i + 1, len(horses)):
@@ -290,7 +291,7 @@ def game():
 
 
 # if goal was achieved
-def game_over():
+def game_over(horse=None):
     while running:
         mouse_up = False
         for event in pygame.event.get():
@@ -300,6 +301,10 @@ def game_over():
                 mouse_up = True
 
         screen.blit(congratulation_img, (0, 0))
+
+        if horse and horse.victory_img:
+            rect = horse.victory_img.get_rect(center=(125,400))
+            screen.blit(horse.victory_img, rect)
 
         ui_action = startg.update(pygame.mouse.get_pos(), mouse_up)
         startg.draw(screen)
