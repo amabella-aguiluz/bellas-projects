@@ -11,6 +11,7 @@ pygame.init()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # set screen size (width, height)
+pygame.display.set_caption('HORSE RACE TESTS BOOTLEG')
 clock = pygame.time.Clock()  # set fps
 velocity = 1.5  # speed of horse
 running = True  # keep game loop running
@@ -233,6 +234,17 @@ def title(mouse_up):
 
     return ui_action
 
+def pause_game():
+    is_paused = True
+    #pause loop
+    while is_paused:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    is_paused = False
+            if event.type == pygame.QUIT:
+                is_paused = False
+                return GameState.QUIT
 
 def game():
     # -- create horses
@@ -243,10 +255,17 @@ def game():
 
     # -- goal
     goal1 = Goal(700, 150, "assets/goal.png")
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return GameState.QUIT
+            if event.type == pygame.KEYDOWN:
+                # pause function
+                if event.key == pygame.K_SPACE:
+                    pause_game()
+                if event.type == pygame.QUIT:
+                    return GameState.QUIT
 
 
         for horse in horses:
