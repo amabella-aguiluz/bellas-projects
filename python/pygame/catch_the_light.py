@@ -11,13 +11,16 @@ pygame.init()
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))  # set screen size (width, height)
-pygame.display.set_caption('HORSE RACE TESTS BOOTLEG')
+pygame.display.set_caption('CATCH THE LIGHT')
+pygame_icon = pygame.image.load("assets/goal.png")
+pygame.display.set_icon(pygame_icon)
 clock = pygame.time.Clock()  # set fps
-velocity = 1.5  # speed of horse
+velocity = 2  # speed of horse
 running = True  # keep game loop running
 
 title_img = pygame.image.load("assets/title.png").convert_alpha()
 congratulation_img = pygame.image.load("assets/congratulation.png").convert_alpha()
+
 
 # -- maze
 maze_image = pygame.image.load("assets/map_test.png").convert_alpha()
@@ -68,6 +71,7 @@ class Horse:
         self.image = pygame.image.load(image_path).convert_alpha()
         self.victory_img = pygame.image.load(victory_path).convert_alpha()
         self.rect = self.image.get_rect(center=(x, y))
+        
         self.h_mask = pygame.mask.from_surface(self.image)
 
     def draw(self, surface):
@@ -88,13 +92,8 @@ class Horse:
 
             if collision:
                 # bounce in new random direction
-                angle = random.uniform(0, 2 * math.pi)
-                speed = math.hypot(self.velocity_x, self.velocity_y)
-                self.velocity_x = math.cos(angle) * speed
-                self.velocity_y = math.sin(angle) * speed
-                self.x += self.velocity_x
-                self.y += self.velocity_y
-                self.rect.center = (self.x, self.y)
+                self.bounce_off_walls(maze_rect, maze_mask)
+                self.resolve_stuck(maze_rect, maze_mask)
                 break
 
         # clamp to screen
@@ -110,26 +109,32 @@ class Horse:
         self.velocity_x = math.cos(new_angle) * speed
         self.velocity_y = math.sin(new_angle) * speed
 
+    def resolve_stuck(self, maze_rect, maze_mask):
+            """Push the horse outward until it's no longer inside a wall."""
+            attempts = 0
+            while self.check_maze_collision(maze_rect, maze_mask) and attempts < 10:
+                # Push the horse slightly in the opposite direction of its velocity
+                self.x -= self.velocity_x * 0.2
+                self.y -= self.velocity_y * 0.2
+                self.rect.center = (self.x, self.y)
+                attempts += 1
+
     def check_maze_collision(self, maze_rect, maze_mask):
         offset = (int(self.rect.left - maze_rect.left), int(self.rect.top - maze_rect.top))
         return self.h_mask.overlap(maze_mask, offset)
 
     def bounce_off_walls(self, maze_rect, maze_mask):
-        angle = math.atan2(self.velocity_y, self.velocity_x)
-        deviation = random.uniform(-math.pi / 3, math.pi / 3)
-        new_angle = angle + math.pi + deviation
-        speed = math.hypot(self.velocity_x, self.velocity_y)
-        self.velocity_x = math.cos(new_angle) * speed
-        self.velocity_y = math.sin(new_angle) * speed
+        self.bounce_velocity()
 
         for _ in range(10):
-            self.x += self.velocity_x
-            self.y += self.velocity_y
+            self.x += self.velocity_x * 0.2
+            self.y += self.velocity_y * 0.2
             self.x = max(0, min(self.x, SCREEN_WIDTH))
             self.y = max(0, min(self.y, SCREEN_HEIGHT))
             self.rect.center = (self.x, self.y)
             if not self.check_maze_collision(maze_rect, maze_mask):
                 break
+
 
     def check_other_collision(self, other):
         offset = (int(self.rect.left - other.rect.left), int(self.rect.top - other.rect.top))
@@ -149,14 +154,13 @@ class Horse:
             other.rect.y += other.velocity_y
 
 def goal_reach(horse, goal):
-    # Calculate offset between horse and goal
+    # offset between horse and goal
     offset = (int(horse.rect.left - goal.rect.left), int(horse.rect.top - goal.rect.top))
     
-    # Check if horse's mask overlaps with goal's mask
+    # if horse's mask overlaps with goal's mask
     collision = horse.h_mask.overlap(goal.g_mask, offset)
     
     if collision:
-        print(f"{horse.name} reached the goal!")
         return True
     
     return False
@@ -255,7 +259,7 @@ def game():
     ]
 
     # -- goal
-    goal1 = Goal(700, 150, "assets/goal.png")
+    goal1 = Goal(750, 100, "assets/goal.png")
 
     while running:
         for event in pygame.event.get():
@@ -263,29 +267,26 @@ def game():
                 return GameState.QUIT
             if event.type == pygame.KEYDOWN:
                 # pause function
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE: # press space
                     pause_game()
                 if event.type == pygame.QUIT:
                     return GameState.QUIT
 
 
-        for horse in horses:
-            horse.move(maze_rect, maze_mask)
-            if(goal_reach(horse, goal1)):
-                return game_over(horse)
+        for horse in horses: 
+            horse.move(maze_rect, maze_mask) #horse moves in the map
+            if(goal_reach(horse, goal1)): #if horse reaches goal
+                return game_over(horse) 
 
-        for i, horse in enumerate(horses):
+        for i, horse in enumerate(horses): # horses bounce off of eachother
             for j in range(i + 1, len(horses)):
                 horse.bounce_off_other(horses[j])
 
         screen.blit(maze_image, (0, 0))  # <-- draw maze map
         for horse in horses:
             horse.draw(screen)
-            pygame.draw.rect(screen, (255, 0, 0), horse.rect, 1)  # red box around horse
             goal1.draw(screen) # <- draw goal
 
-
-        pygame.draw.rect(screen, (0, 255, 0), maze_rect, 1)  # green box around maze
         pygame.display.flip()
         clock.tick(60)
 
