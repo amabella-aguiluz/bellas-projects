@@ -93,7 +93,7 @@ class Horse:
             if collision:
                 # bounce in new random direction
                 self.bounce_off_walls(maze_rect, maze_mask)
-                self.resolve_stuck(maze_rect, maze_mask)
+                self.fix_stuck(maze_rect, maze_mask)
                 break
 
         # clamp to screen
@@ -109,7 +109,7 @@ class Horse:
         self.velocity_x = math.cos(new_angle) * speed
         self.velocity_y = math.sin(new_angle) * speed
 
-    def resolve_stuck(self, maze_rect, maze_mask):
+    def fix_stuck(self, maze_rect, maze_mask):
             """Push the horse outward until it's no longer inside a wall."""
             attempts = 0
             while self.check_maze_collision(maze_rect, maze_mask) and attempts < 10:
@@ -165,11 +165,6 @@ def goal_reach(horse, goal):
     
     return False
 
-# -- colors
-black = (0, 0, 0)
-grey = (127, 127, 127)
-white = (255, 255, 255)
-
 
 def create_surface_with_text(text, font_size, text_rgb):
     font = pygame.freetype.SysFont("Courier", font_size, bold=True)
@@ -217,10 +212,11 @@ class GameState(Enum):
     TITLE = 0
     NEWGAME = 1
 
+# -- colors
+black = (0, 0, 0)
 
-# -- buttons
+# -- button
 startg = UIElement((400, 350), "Start Game", 50, black, action=GameState.NEWGAME)
-quitg = UIElement((400, 400), "Quit Game", 50, black, action=GameState.QUIT)
 exitg = UIElement((400, 400), "Exit Game", 50, black, action=GameState.QUIT)
 
 
@@ -232,8 +228,8 @@ def title(mouse_up):
     startg.draw(screen)
 
     if ui_action is None:
-        ui_action = quitg.update(pygame.mouse.get_pos(), mouse_up)
-    quitg.draw(screen)
+        ui_action = exitg.update(pygame.mouse.get_pos(), mouse_up)
+    exitg.draw(screen)
 
     pygame.display.flip()
 
@@ -311,8 +307,8 @@ def game_over(horse=None):
         startg.draw(screen)
 
         if ui_action is None:
-            ui_action = quitg.update(pygame.mouse.get_pos(), mouse_up)
-        quitg.draw(screen)
+            ui_action = exitg.update(pygame.mouse.get_pos(), mouse_up)
+        exitg.draw(screen)
 
         pygame.display.flip()
 
