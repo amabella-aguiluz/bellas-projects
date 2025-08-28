@@ -16,7 +16,7 @@ A silly little game where a mini-Angela and mini-Carmen race eachother for a Gol
 ## Installation
 1. Clone the repository:
 ```bash
- git clone https://github.com/amabella-aguiluz/bellas-projects/tree/main/python/pygame
+ git clone https://github.com/amabella-aguiluz/bellas-projects/tree/main/python/pygame/catch_the_light
 ```
 
 2. Install dependencies:
@@ -27,7 +27,7 @@ A silly little game where a mini-Angela and mini-Carmen race eachother for a Gol
 ## Usage
 After cloning the repository, use the following command:
 ```bash
-cd pygame
+cd catch_the_light
 python catch_the_light.py
 ```
 
