@@ -1,11 +1,33 @@
 import discord
 from discord.ext import commands
 
+import os
+import asyncio
+
 bot = commands.Bot(command_prefix="a!", intents=discord.Intents.all())
+# a! is prefix to all commands
 
 @bot.event
 async def on_ready():
-    print("Bot ready.")
+    print(f"{bot.user.name} is ready to begin the day.")
+    await bot.change_presence(activity=discord.Game("Lobotomy Corporation"))
+
+with open("token.txt") as file:
+    # opens token
+    token = file.read()
+
+async def Load():
+    # loads all in cogs folder
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            await bot.load_extension(f"cogs.{filename[:-3]}")
+
+async def main():
+    async with bot:
+        await Load()
+        await bot.start(token)
+
+asyncio.run(main())
 
 @bot.command(name="hi")
 async def hello(ctx):
@@ -24,14 +46,4 @@ async def send_embed(ctx):
     embeded_msg.set_footer(text="footer text", icon_url=ctx.author.avatar)
     await ctx.send(embed=embeded_msg)
 
-@bot.command()
-async def ping(ctx):
-    ping_embed = discord.Embed(title="ping", description="latency", color=discord.Color.blue())
-    ping_embed.add_field(name=f"{bot.user.name}'s latency.", value=f"{round(bot.latency * 1000)} ms.", inline= True)
-    ping_embed.set_footer(text=f"Requested by {ctx.author.name}.", icon_url=ctx.author.avatar)
-    await ctx.send(embed=ping_embed)
 
-with open("token.txt") as file:
-    token = file.read()
-
-bot.run(token)
