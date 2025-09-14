@@ -1,4 +1,5 @@
 python/angela_bot/invite.txt
 python/angela_bot/token.txt
 venv
-python/angela_bot/cogs/
+python/angela_bot/cogs/__pycache__
+python/angela_bot/cogs/reddit.txt
