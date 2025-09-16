@@ -1,4 +1,5 @@
 import discord
+from discord import app_commands
 from discord.ext import commands
 
 import os
@@ -11,6 +12,16 @@ bot = commands.Bot(command_prefix="a!", intents=discord.Intents.all())
 async def on_ready():
     print(f"{bot.user.name} is ready to begin the day.")
     await bot.change_presence(activity=discord.Game("Lobotomy Corporation"))
+    try:
+        synced_commands = await bot.tree.sync()
+        print(f"Synced {len(synced_commands)} commands.")
+    except Exception as e:
+        print("An error with syncing application commands has occured: ", e)
+@bot.tree.command(name="hello", description="says hello back to the person who ran the command")
+async def hello(interaction: discord.Interaction):
+    await interaction.response.send_message(f"Welcome to Lobotomy Corporation, Manager {interaction.user.mention}.")
+
+
 
 with open("token.txt") as file:
     # opens token
