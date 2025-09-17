@@ -53,7 +53,7 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed_choice)
 
     @commands.command()
-    async def rate(self, ctx:commands.Context, rate:str):
+    async def rate(self, ctx:commands.Context, *, rate:str):
         rate_result = random.randint(1, 10)
         if rate_result <= 3:
             color = 0xDC2020  # red
@@ -67,12 +67,12 @@ class Fun(commands.Cog):
         await ctx.send(embed = rate_embed)
 
     @commands.command()
-    async def fixerrank(self, ctx:commands.Context, rate:str):
-        fixer_rate = {"Grade 9 Fixer":0xDC2020, "Grade 8 Fixer":0xDC2020,
-                       "Grade 7 Fixer":0xDC2020, "Grade 6 Fixer":0xeEAA824,
-                       "Grade 5 Fixer":0xEAA824, "Grade 4 Fixer":0xEAA824,
-                       "Grade 3 Fixer":0x2ecc71, "Grade 2 Fixer":0x2ecc71,
-                       "Grade 1 Fixer":0x2ecc71, "Color Fixer":0x3498db}
+    async def fixerrank(self, ctx:commands.Context, *, rate:str):
+        fixer_rate = {"Grade 9":0xDC2020, "Grade 8":0xDC2020,
+                       "Grade 7":0xDC2020, "Grade 6":0xeEAA824,
+                       "Grade 5":0xEAA824, "Grade 4":0xEAA824,
+                       "Grade 3":0x2ecc71, "Grade 2":0x2ecc71,
+                       "Grade 1":0x2ecc71, "Color":0x3498db}
         fixer_rate_res = random.choice(list(fixer_rate.keys()))
         fixer_color = fixer_rate[fixer_rate_res]
         rate_embed = discord.Embed(description=f"I would consider **{rate}** to be a **{fixer_rate_res}** rank Fixer.", color= fixer_color)
@@ -90,7 +90,7 @@ class Fun(commands.Cog):
                     "Outlook good.":0x2ecc71,
                     "Yes.":0x2ecc71,
                     "Signs point to yes.":0x2ecc71,
-                    "send hazy, try again.":0xe67e22,
+                    "Answer hazy, try again.":0xe67e22,
                     "Ask again later.":0xe74c3c,
                     "Better not tell you now.":0xe74c3c,
                     "Cannot predict now.":0xe74c3c,
@@ -103,7 +103,7 @@ class Fun(commands.Cog):
                     "Maybe.":0xe67e22}
         fortune_answer = random.choice(list(responses.keys()))
         color = responses[fortune_answer]
-        embed_fortune = discord.Embed(title=f":8ball: {(question)}", description=f"{fortune_answer} {message.author.mention}", color=color)
+        embed_fortune = discord.Embed(title=f":8ball: {(question)}", description=f"{fortune_answer} {ctx.author.mention}", color=color)
         await ctx.send(embed=embed_fortune)
     
         
