@@ -67,7 +67,7 @@ class Fun(commands.Cog):
         await ctx.send(embed = rate_embed)
 
     @commands.command()
-    async def fixerrank(self, ctx:commands.Context, *, rate:str):
+    async def rankfixer(self, ctx:commands.Context, *, rate:str):
         fixer_rate = {"Grade 9":0xDC2020, "Grade 8":0xDC2020,
                        "Grade 7":0xDC2020, "Grade 6":0xeEAA824,
                        "Grade 5":0xEAA824, "Grade 4":0xEAA824,
