@@ -5,7 +5,7 @@ from discord.ext import commands
 import os
 import asyncio
 
-bot = commands.Bot(command_prefix="a!", intents=discord.Intents.all())
+bot = commands.Bot(command_prefix="a!", intents=discord.Intents.all(), help_command=None)
 # a! is prefix to all commands
 
 @bot.event
