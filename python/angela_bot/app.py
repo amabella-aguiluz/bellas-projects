@@ -45,7 +45,7 @@ async def ily(ctx):
     await ctx.send(f"I love you too, {ctx.author.mention} <3")
 
 @bot.command()
-async def help(ctx):
+async def help_commands(ctx):
     help_embed = discord.Embed(title="Commands", description=
                                "**level:** Check current level of yourself or another user.\n**lobotomeme:** Return a random post from r/TheOdysseyHadAPurpose\n**coinflip**: Flip a coin to return heads or tails.\n**roll**: Roll a dice.\n**choose**: Let Angela decide for you.\n**rate**:Let Angela rate whatever you ask her to.\n**rankfixer**: Ever wondered what you would rank at as a fixer? Angela could think of it for you!\n**fortune**: Look into the 8ball and ask for a fortune.")
 
