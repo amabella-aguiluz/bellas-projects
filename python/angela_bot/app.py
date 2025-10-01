@@ -8,24 +8,6 @@ import asyncio
 bot = commands.Bot(command_prefix="a!", intents=discord.Intents.all(), help_command=None)
 # a! is prefix to all commands
 
-@bot.command()
-async def ily(ctx):
-    await ctx.send(f"I love you too, {ctx.author.mention} <3")
-
-@bot.command()
-async def commandlist(ctx):
-    commands_embed = discord.Embed(
-        title="Commands",
-        description="""**level:** Check current level of yourself or another user.
-**lobotomeme:** Return a random post from r/TheOdysseyHadAPurpose
-**coinflip:** Flip a coin to return heads or tails.
-**roll:** Roll a dice.
-**choose:** Let Angela decide for you.
-**rate:** Let Angela rate whatever you ask her to.
-**rankfixer:** Ever wondered what you would rank at as a fixer? Angela could think of it for you!
-**fortune:** Look into the 8ball and ask for a fortune."""
-    )
-    await ctx.send(embed=commands_embed)
 
 @bot.event
 async def on_ready():
@@ -39,6 +21,7 @@ async def on_ready():
 @bot.tree.command(name="hello", description="says hello back to the person who ran the command")
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message(f"Welcome to Lobotomy Corporation, Manager {interaction.user.mention}.")
+
 
 
 
