@@ -3,14 +3,19 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
-import heartIcon from './assets/icons/heart.png'
-import candyIcon from './assets/icons/candy.png'
-import bedIcon from './assets/icons/bed.png'
+import heartIcon from './assets/icons/heart_icon.png'
+import candyIcon from './assets/icons/feed_icon.png'
+import bedIcon from './assets/icons/sleep_icon.png'
 import base from './assets/sprites/base.png'
 import sprite1 from './assets/sprites/0.png'
 import sprite2 from './assets/sprites/1.png'
 import sprite3 from './assets/sprites/2.png'
 import sprite4 from './assets/sprites/3.png'
+import lovesprite from './assets/sprites/spritelove.png'
+import sleepsprite from './assets/sprites/spritesleep.png'
+import feedsprite from './assets/sprites/spritefeed.png'
+import deadsprite from './assets/sprites/spritedead.png'
+
 
 "#f4fbf8ff"
 
@@ -18,7 +23,7 @@ function StatButton({ icon, statName, onClick}) {
   return (<button
   onClick={() => onClick(statName, 10)}
   className="w-[110px] h-[110px] p-[13px] flex items-center justify-center bg-transparent rounded-[25px] border-5 border-[#7c6dddff]">
-    <img src={icon} className="w-[50px] h-[50px]"></img></button>)
+    <img src={icon} className="w-[70px] h-[70px]"></img></button>)
 }
 
 function StatBar({ icon, value }) {
@@ -32,7 +37,7 @@ function StatBar({ icon, value }) {
 
   return (
     <div id="mood_bar" className="w-[412px] h-[35px] flex flex-row items-center gap-[10px] justify-center px-[30px] py-[5px]">
-      <img src={icon} alt="icon" className="w-[35px] h-[35px]" />
+      <img src={icon} alt="icon" className="w-[50px] h-[50px]" />
       <div
         id="bar_frame" className="relative w-[307px] h-[35px] rounded-[30px] bg-[#f4fbf8ff] border-[#f4fbf8ff] border-5"
       >
@@ -67,7 +72,7 @@ function App() {
     }));
 
     setCurrentAction(name);
-    setTimeout(() => setCurrentAction(null), 1000); // 2 seconds
+    setTimeout(() => setCurrentAction(null), 2000); // 2 seconds
   };
 
   const [currentAction, setCurrentAction] = useState(null);
@@ -87,29 +92,28 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, []);
 
-  // TODO: DEATH FUNCTION
-
-
     // update sprite
   let sprite;
 
   if (currentAction === 'love') {
-  sprite = sprite1;
+  sprite = lovesprite; // happy sprite
 } else if (currentAction === 'hunger') {
-  sprite = sprite1;
+  sprite = feedsprite; // eating sprite
 } else if (currentAction === 'energy') {
-  sprite = sprite1;
+  sprite = sleepsprite; // sleeping sprite
 } else {
   if(average >= 90) sprite = sprite1;
   else if(average >= 60) sprite = sprite2;
   else if(average >= 40) sprite = sprite3;
+  else if(average == 0) sprite = deadsprite; // death sprite
   else sprite = sprite4;}
 
-
+"#d1b3ffff"
+  
   // visuals 
   return (
       <div className="w-screen h-screen relative flex items-center justify-center">
-        <div id="home" className="w-full max-w-[412px] flex flex-col items-center justify-start bg-gradient-to-b from-[#CBA9FF] to-[#8CB4FF] overflow-hidden">
+        <div id="home" className="w-full max-w-[412px] flex flex-col items-center justify-start bg-gradient-to-b from-[#EFE5FF] to-[#908CFF] overflow-hidden">
           <div id="main" className="w-full flex flex-col items-center justify-start">
           {/* stats */}
         <div id = "bar-holder" className="w-[412px] h-[160px] flex flex-col items-center justify-center py-[10px] gap-[10px]">
