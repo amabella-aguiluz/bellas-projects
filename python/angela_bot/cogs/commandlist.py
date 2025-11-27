@@ -26,4 +26,4 @@ class commandList(commands.Cog):
         await ctx.send(embed=commands_embed)
 
 async def setup(bot):
-        await bot.add_cog(commandList(bot))
+    await bot.add_cog(commandList(bot))
